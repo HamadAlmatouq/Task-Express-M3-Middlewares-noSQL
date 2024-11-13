@@ -5,9 +5,9 @@ const {
   postsUpdate,
   postsDelete,
   postsCreate,
-  postsGetById,
   postsGetBySlug,
 } = require('./posts.controllers');
+const upload = require("../../middleware/multer");
 
 const { validate, ValidationError, Joi } = require('express-validation')
 
@@ -16,7 +16,8 @@ const titleValidation = {
     title: Joi.string()
       .regex(/[a-zA-Z]{3,40}/)
       .required(),
-    body: Joi.string()
+    body: Joi.string(),
+    image: Joi.string(),
   }),
 }
 
@@ -28,7 +29,7 @@ const handleErrors = function (err, req, res, next) {
 
 router.get('/', postsGet, handleErrors);
 
-router.post('/', validate(titleValidation, {}, {}), postsCreate, handleErrors);
+router.post('/', upload.single('image'), postsCreate, handleErrors);
 router.val = function (err, req, res, next) {
   if (err instanceof ValidationError) {
     return res.status(err.statusCode).json(err)

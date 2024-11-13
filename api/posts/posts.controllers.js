@@ -3,7 +3,14 @@ var slugify = require('slugify');
 
 exports.postsCreate = async (req, res, next) => {
   try {
-    const newPost = await Post.create({ ...req.body, title_slug: slugify(req.body.title) });
+
+    const newPost = {
+      ...req.body,
+      title_slug: slugify(req.body.title)
+    };
+    if (req.file)
+      newPost.image = `${req.protocol}://${req.get("host")}/${req.file.path}`;
+    await Post.create(newPost);
     res.status(201).json(newPost);
   } catch (error) {
     // res.status(500).json({ message: error.message });
